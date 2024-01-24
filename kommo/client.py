@@ -1,19 +1,20 @@
 import base64
 import requests
 import json
+from urllib.parse import urlencode
 
-from exceptions import UnauthorizedError, WrongFormatInputError
+from kommo.exceptions import UnauthorizedError, WrongFormatInputError
 
 
 class Client(object):
+    OAUTH_BASE_URL = "https://www.kommo.com/oauth"
     headers = {"Content-Type": "application/json", "Accept": "application/json"}
 
-    def __init__(self, client_id=None, client_secret=None, code=None, domain=None, redirect_uri=None):
+    def __init__(self, client_id=None, client_secret=None, domain=None, redirect_uri=None):
         self.CLIENT_ID = client_id
         self.CLIENT_SECRET = client_secret
-        self.CODE = code
         self.REDIRECT_URI = redirect_uri
-        self.AUTH_URL = f"https://{domain}.kommo.com/"
+        self.AUTH_URL = f"https://{domain}/"
         self.TOKEN = None
 
     def auth_headers(self):
@@ -21,12 +22,22 @@ class Client(object):
         self.headers["Authorization"] = f"Basic {encoded_credentials}"
         self.headers["Content-Type"] = "application/x-www-form-urlencoded"
 
-    def get_access_token(self):
+    def authorization_url(self, state=None):
+        params = {
+            "client_id": self.CLIENT_ID,
+            "state": state,
+            "mode": "post_message",
+        }
+
+        return self.OAUTH_BASE_URL + "?" + urlencode(params)
+
+    def get_access_token(self, code, domain):
+        self.AUTH_URL = f"https://{domain}/"
         body = {
             "client_id": self.CLIENT_ID,
             "client_secret": self.CLIENT_SECRET,
             "grant_type": "authorization_code",
-            "code": self.CODE,
+            "code": code,
             "redirect_uri": self.REDIRECT_URI
         }
         self.auth_headers()
@@ -45,6 +56,9 @@ class Client(object):
 
     def set_token(self, access_token):
         self.headers.update(Authorization=f"Bearer {access_token}")
+
+    def get_account_info(self):
+        return self.get("/api/v4/account")
 
     def list_companies(self):
         return self.get("/api/v4/companies")
