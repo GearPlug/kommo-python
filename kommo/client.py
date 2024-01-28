@@ -84,29 +84,25 @@ class Client(object):
     def get_custom_fields_tasks(self):
         return self.get('/api/v4/tasks/custom_fields')
 
-    def create_company(self, name: str = None, company_name: str = None, phone: str = None, email: str = None,
-                       custom_fields: list = None):
+    def create_company(self, name: str = None, custom_fields_values: list = None):
+        args = locals()
+        body = self.set_form_data(args)
+        return self.post("api/v4/companies", data=json.dumps([body]))
+
+    def create_contact(self, first_name: str = None, last_name: str = None, custom_fields_values: list = None):
         args = locals()
         body = self.set_form_data(args)
         return self.post("api/v4/contacts", data=json.dumps([body]))
 
-    def create_contact(self, name: str = None, first_name: str = None, last_name: str = None,
-                       custom_fields: list = None):
+    def create_lead(self, name: str = None, custom_fields_values: list = None):
         args = locals()
         body = self.set_form_data(args)
-        return self.post("api/v4/contacts", data=json.dumps([body]))
+        return self.post("api/v4/leads", data=json.dumps([body]))
 
-    def create_lead(self, name: str = None, first_name: str = None, last_name: str = None,
-                    custom_fields: list = None):
+    def create_task(self, text: str = None, complete_till: int = None):
         args = locals()
         body = self.set_form_data(args)
-        return self.post("api/v4/contacts", data=json.dumps([body]))
-
-    def create_task(self, name: str = None, first_name: str = None, last_name: str = None,
-                    custom_fields: list = None):
-        args = locals()
-        body = self.set_form_data(args)
-        return self.post("api/v4/contacts", data=json.dumps([body]))
+        return self.post("api/v4/tasks", data=json.dumps([body]))
 
     def list_webhooks(self):
         return self.get("/api/v4/webhooks")
