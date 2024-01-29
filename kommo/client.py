@@ -84,24 +84,26 @@ class Client(object):
     def get_custom_fields_tasks(self):
         return self.get('/api/v4/tasks/custom_fields')
 
-    def create_company(self, name: str = None, custom_fields_values: list = None):
-        args = locals()
-        body = self.set_form_data(args)
+    def create_company(self, fixed_fields: dict = None, custom_fields_values: list = None):
+        if custom_fields_values:
+            fixed_fields['custom_fields_values'] = custom_fields_values
+        body = self.set_form_data(fixed_fields)
         return self.post("api/v4/companies", data=json.dumps([body]))
 
-    def create_contact(self, first_name: str = None, last_name: str = None, custom_fields_values: list = None):
-        args = locals()
-        body = self.set_form_data(args)
+    def create_contact(self, fixed_fields: dict = None, custom_fields_values: list = None):
+        if custom_fields_values:
+            fixed_fields['custom_fields_values'] = custom_fields_values
+        body = self.set_form_data(fixed_fields)
         return self.post("api/v4/contacts", data=json.dumps([body]))
 
-    def create_lead(self, name: str = None, custom_fields_values: list = None):
-        args = locals()
-        body = self.set_form_data(args)
+    def create_lead(self, fixed_fields: dict = None, custom_fields_values: list = None):
+        if custom_fields_values:
+            fixed_fields['custom_fields_values'] = custom_fields_values
+        body = self.set_form_data(fixed_fields)
         return self.post("api/v4/leads", data=json.dumps([body]))
 
-    def create_task(self, text: str = None, complete_till: int = None):
-        args = locals()
-        body = self.set_form_data(args)
+    def create_task(self, fixed_fields: dict = None):
+        body = self.set_form_data(fixed_fields)
         return self.post("api/v4/tasks", data=json.dumps([body]))
 
     def list_webhooks(self):
