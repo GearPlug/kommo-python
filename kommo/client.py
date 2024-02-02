@@ -84,11 +84,18 @@ class Client(object):
     def get_custom_fields_tasks(self):
         return self.get('/api/v4/tasks/custom_fields')
 
+    def search_by_module(self, module: str = None, text: str = None):
+        return self.get(f'/api/v4/{module}?query={text}')
+
     def create_company(self, fixed_fields: dict = None, custom_fields_values: list = None):
         if custom_fields_values:
             fixed_fields['custom_fields_values'] = custom_fields_values
         body = self.set_form_data(fixed_fields)
         return self.post("api/v4/companies", data=json.dumps([body]))
+
+    def update_company(self, body: dict = None):
+        body = self.set_form_data(body)
+        return self.patch(f"api/v4/companies", data=json.dumps([body]))
 
     def create_contact(self, fixed_fields: dict = None, custom_fields_values: list = None):
         if custom_fields_values:
@@ -96,11 +103,19 @@ class Client(object):
         body = self.set_form_data(fixed_fields)
         return self.post("api/v4/contacts", data=json.dumps([body]))
 
+    def update_contact(self, body: dict = None):
+        body = self.set_form_data(body)
+        return self.patch(f"api/v4/contacts", data=json.dumps([body]))
+
     def create_lead(self, fixed_fields: dict = None, custom_fields_values: list = None):
         if custom_fields_values:
             fixed_fields['custom_fields_values'] = custom_fields_values
         body = self.set_form_data(fixed_fields)
         return self.post("api/v4/leads", data=json.dumps([body]))
+
+    def update_lead(self, body: dict = None):
+        body = self.set_form_data(body)
+        return self.patch(f"api/v4/leads", data=json.dumps([body]))
 
     def create_task(self, fixed_fields: dict = None):
         body = self.set_form_data(fixed_fields)
@@ -109,14 +124,20 @@ class Client(object):
     def list_webhooks(self):
         return self.get("/api/v4/webhooks")
 
+    def list_leads_pipelines(self):
+        return self.get("/api/v4/leads/pipelines")
+
+    def list_pipelines_statuses(self, pipeline_id):
+        return self.get(f"/api/v4/leads/pipelines/{pipeline_id}/statuses")
+
     def create_webhook(self, event_type: str = None, url: str = None):
         data = {
-                "destination": url,
-                "settings": [
-                    event_type
-                ],
-                "sort": 10
-            }
+            "destination": url,
+            "settings": [
+                event_type
+            ],
+            "sort": 10
+        }
         return self.post("/api/v4/webhooks", data=json.dumps(data))
 
     def delete_webhook(self, uuid: str = None):
@@ -128,6 +149,10 @@ class Client(object):
 
     def post(self, endpoint, **kwargs):
         response = self.request("POST", endpoint, **kwargs)
+        return self.parse(response)
+
+    def patch(self, endpoint, **kwargs):
+        response = self.request("PATCH", endpoint, **kwargs)
         return self.parse(response)
 
     def delete(self, endpoint, **kwargs):
